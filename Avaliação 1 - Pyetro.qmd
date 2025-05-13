@@ -1,0 +1,130 @@
+---
+title: "Avaliação 1"
+format: html
+editor: visual
+author: Pyetro Luidy Guêno
+Teacher: Bruno Tomio
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+#| label: load-packages
+#| include: false
+#| echo: false
+
+library(WDI)
+
+#transversal
+
+deflator1 <- WDI(country = 'all',
+                    indicator = 'NY.GDP.DEFL.KD.ZG',
+                    start = 1960, end = 2024)
+
+#temporal
+
+deflator2 <- WDI(country = 'BR',
+                 indicator = 'NY.GDP.DEFL.KD.ZG')
+
+#Painel
+
+deflator3 <- WDI(country = 'all',
+                  indicator = 'NY.GDP.DEFL.KD.ZG')
+
+
+```
+
+## Variável
+
+A variável **NY.GDP.DEFL.KD.ZG** mostra, em termos percentuais, quanto variou de um ano para o outro o deflator implícito do PIB — um índice de preços que cobre todos os bens e serviços finais produzidos pela economia. Na prática, ela revela a inflação “ampla” do país: se o valor é positivo, indica que, em média, os preços da produção interna subiram; se é negativo, houve deflação. Essa medida é importante porque serve para descontar a inflação do PIB nominal e obter o crescimento real, permite comparações internacionais e históricas em bases homogêneas, orienta decisões de política macroeconômica ao sinalizar pressões de preços gerais e é fundamental em modelagens econométricas que investigam produtividade, ciclo econômico e efeitos de choques externos sobre a economia.
+
+## Gráfico de Dados em Painel
+
+O gráfico apresenta o **índice de deflator do PIB** (ajustado pela inflação) de 1960 a 2023, comparando o Brasil com outros países. O eixo horizontal representa os anos, enquanto o eixo vertical mostra os valores do deflator do PIB. As linhas vermelhas representam os dados do Brasil, enquanto as linhas cinzas indicam os demais países.
+
+Observa-se que o Brasil experimentou grandes variações no deflator do PIB, com picos acentuados durante as décadas de 1980 e 1990, especialmente no início de 1990, refletindo momentos de inflação extremamente alta e crises econômicas. Já os outros países apresentam um padrão mais estável e com menores flutuações ao longo do tempo, embora também ocorram picos em períodos de crise econômica global.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+
+library(dplyr)
+library(ggplot2)
+
+
+#| label: graficodedadosempainel
+#| warning: false
+#| echo: false
+
+
+
+deflator3 %>%
+  filter(!is.na(NY.GDP.DEFL.KD.ZG)) %>%
+  mutate(Brasil = if_else(iso2c == "BR", "Brasil", "Outros")) %>%
+  ggplot(aes(x = year, y = NY.GDP.DEFL.KD.ZG, group = country, color = Brasil)) +
+  geom_line(size = 0.8, alpha = 0.8) +
+  scale_color_manual(values = c("Brasil" = "red", "Outros" = "gray")) +
+  labs(
+    title = "Índice de Deflator do PIB em 2023 - Brasil VS Outros Países",
+    x = "Ano",
+    y = "Deflator do PIB",
+    color = "Legenda" ) +
+  theme_minimal()
+
+
+
+
+```
+
+## Gráfico de Dados de Corte Transversal
+
+O gráfico apresenta a **deflação do PIB** em 2023, com a comparação entre o Brasil e outros países. O eixo horizontal representa os países, ordenados pela deflação do PIB de forma decrescente, e o eixo vertical mostra os valores do deflator do PIB. As barras vermelhas representam os dados do Brasil, enquanto as barras pretas indicam os outros países.
+
+É possível observar que o Brasil tem um valor relativamente alto de deflação do PIB em 2023, destacando-se no gráfico em comparação com a grande maioria dos países, que apresentam valores muito baixos ou próximos de zero. O gráfico sugere uma discrepância acentuada entre o Brasil e outros países no que diz respeito ao comportamento do deflator do PIB.
+
+Além disso, a distribuição das barras é altamente assimétrica, com uma grande concentração de países apresentando deflação do PIB muito baixa, o que reflete uma economia global mais estável. O Brasil se destaca devido à sua deflação mais elevada, um reflexo das particularidades econômicas do país.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#| label: graficocortetransversal
+#| warning: false 
+#| echo: false  
+
+deflator1 %>%
+  filter(!is.na(NY.GDP.DEFL.KD.ZG)) %>%
+  mutate(Brasil = if_else(iso2c == "BR", "Brasil", "Outros")) %>%
+  ggplot(aes(x = reorder(country, -NY.GDP.DEFL.KD.ZG), y = NY.GDP.DEFL.KD.ZG, fill = Brasil)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values = c("Brasil" = "red", "Outros" = "black")) +
+  labs(
+    title = "Deflação do PIB em 2023 - Brasil vs Outros Países",
+    x = "País",
+    y = "Deflator do PIB  (2023)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_blank())
+```
+
+## Gráfico de Dados de Série Temporal
+
+O gráfico apresenta a **evolução do deflator do PIB** do Brasil ao longo dos anos, com dados de 1960 a 2023. O eixo horizontal (x) representa os anos, e o eixo vertical (y) mostra o valor do deflator do PIB, que reflete a variação do Produto Interno Bruto real ajustado pela inflação.
+
+O gráfico é composto por uma linha vermelha e pontos vermelhos, que destacam as variações anuais do deflator do PIB. Observa-se que o Brasil enfrentou períodos de alta inflação, com picos significativos no final dos anos 1980 e no início dos anos 1990, com valores de deflator elevados. Esses picos provavelmente estão relacionados a momentos de crise econômica, como a hiperinflação no Brasil.
+
+A partir do ano 2000, o gráfico mostra uma estabilidade maior, com o deflator do PIB diminuindo consideravelmente e se mantendo em níveis baixos. Essa tendência reflete a estabilização econômica do Brasil após as reformas e o controle da inflação implementados nas décadas seguintes.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+#| label: graficodeserietemporal
+#| warning: false 
+#| echo: false    
+
+
+deflator2 %>%
+  ggplot(aes(x = year, y = NY.GDP.DEFL.KD.ZG)) +
+  geom_line(color = "red", size = 1) + 
+  geom_point(color = "red", size = 2) +
+  labs(
+    title = "Deflator do PIB do Brasil",
+    x = "Ano",
+    y = "Deflator do PIB"
+  ) +
+  theme_minimal()
+```
